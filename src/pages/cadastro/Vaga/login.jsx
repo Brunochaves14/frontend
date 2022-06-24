@@ -2,17 +2,39 @@ import React, { useState} from "react";
 import PageDefault from "../../../components/PageDefault";
 import png from '../../../assets/img/logo.png'
 import './style.css'
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import axios from "axios";
+const bcrypt = require('bcryptjs');
 
 export const Login = ()  => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const navigate = useNavigate()
+
+    function login(e) {
+        e.preventDefault();
+        axios.get(`http://localhost:4002/usuario-email/${email}`)
+        .then(resp => {
+            let usuario = resp.data;
+            bcrypt.compare(password, usuario.senha, (erro, result) => {
+                if (erro) {
+                    alert('Senha Incorreta!')
+                } else {
+                    if(result) {
+                        console.log('Usuário Logado')
+                        navigate('/');
+                    }
+                }
+            });
+            
+        })
+    }
 
     return (
         <PageDefault>
             <div className="container-login">
                  <div className="wrap-login">
-                    <form className="login-form">
+                    <form className="login-form" onSubmit={login}>
                         <span className="title">Bem-Vindo!!!</span>
                         <span className="title">
                             <img src={png} alt="" />
@@ -23,6 +45,7 @@ export const Login = ()  => {
                              className={email !== "" ? 'has-val input' : 'input'} 
                              type="email"
                              value={email}
+                             required
                              onChange={e => setEmail(e.target.value)} 
                              />
                             <span className="focus-input" data-placeholder="Email"></span>
@@ -34,6 +57,7 @@ export const Login = ()  => {
                             className={password !== "" ? 'has-val input' : 'input'}
                             type="password" 
                             value = {password}
+                            required
                             onChange={e => setPassword(e.target.value)} 
                             />
                             <span className="focus-input" data-placeholder="Password"></span>
