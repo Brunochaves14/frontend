@@ -9,6 +9,7 @@ const bcrypt = require('bcryptjs');
 export const Login = ()  => {
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
+    const [mensagem, setMensagem] = useState("")
     const navigate = useNavigate()
 
     function login(e) {
@@ -17,21 +18,24 @@ export const Login = ()  => {
         .then(resp => {
             let usuario = resp.data;
             bcrypt.compare(password, usuario.senha, (erro, result) => {
-                if (erro) {
-                    alert('Senha Incorreta!')
+                if(result) {
+                    setMensagem('Usuário Logado')
+                    navigate('/');
                 } else {
-                    if(result) {
-                        console.log('Usuário Logado')
-                        navigate('/');
-                    }
+                    setMensagem('Senha Incorreta');
+                    setPassword('');
                 }
             });
             
+        })
+        .catch(erro => {
+            setMensagem('E-mail não encontrado!')
         })
     }
 
     return (
         <PageDefault>
+            <div style={{color: 'red', textAlign: "center"}}>{mensagem}</div>
             <div className="container-login">
                  <div className="wrap-login">
                     <form className="login-form" onSubmit={login}>
